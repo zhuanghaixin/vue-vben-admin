@@ -18,7 +18,7 @@ import { ERROR_LOG_ROUTE, PAGE_NOT_FOUND_ROUTE } from '/@/router/routes/basic';
 
 import { filter } from '/@/utils/helper/treeHelper';
 
-import { getMenuList, getAllMenu } from '/@/api/sys/menu';
+import { getMenuList, getActiveMenu } from '/@/api/sys/menu';
 import { getPermCode } from '/@/api/sys/user';
 
 import { useMessage } from '/@/hooks/web/useMessage';
@@ -200,14 +200,39 @@ export const usePermissionStore = defineStore({
         return routes;
       };
 
+      const convertMenuTree = (menuList) => {
+        const menus = [];
+        menuList.forEach((menu) => {
+          if (menu.meta) {
+            try {
+              menu.meta = JSON.parse(menu.meta);
+            } catch (e) {
+              console.error(e);
+            }
+          }
+          if (menu.pid === 0) {
+            menus.push(menu);
+          } else {
+            const parentMenu = menuList.find(m => m.id === menu.pid);
+            if (!parentMenu.children) {
+              parentMenu.children = [];
+            }
+            parentMenu.children.push(menu);
+          }
+        });
+        return menus;
+      };
+
       const getAllMenuData = () => {
-        return getAllMenu();
+        return getActiveMenu().then((menu) => {
+          console.log(menu);
+          return convertMenuTree(menu);
+        });
       };
 
       let backendRouteList;
       try {
         backendRouteList = await getAllMenuData();
-        backendRouteList = JSON.parse(backendRouteList);
         backendRouteList = wrapperRouteComponent(backendRouteList);
         backendRouteList = parseRouteRoles(backendRouteList);
         backendRouteList = addPageNotFoundAtFirst(backendRouteList);
@@ -215,7 +240,7 @@ export const usePermissionStore = defineStore({
         console.error(e);
       }
       console.log(backendRouteList);
-      // console.log(JSON.stringify(asyncRoutes));
+      // backendRouteList = asyncRoutes;
 
       switch (permissionMode) {
         // 角色权限
