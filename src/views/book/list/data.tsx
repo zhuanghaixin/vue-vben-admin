@@ -1,9 +1,21 @@
 import { FormSchema } from '/@/components/Form/index';
 import { getBookList } from '@/api/book/menu';
 
-export const searchList = async () => {
+export const searchList = async (params = {}) => {
   const result: any[] = [];
-  const data = await getBookList({ page: 1, pageSize: 20 });
+  const { title, author, page = 1, pageSize = 20 }: any = params;
+  console.log(title, author);
+  const p: any = {
+    page,
+    pageSize,
+  };
+  if (title) {
+    p.title = title;
+  }
+  if (author) {
+    p.author = author;
+  }
+  const { data, count } = await getBookList(p);
   for (let i = 0; i < data.length; i++) {
     const item = data[i];
     result.push({
@@ -12,10 +24,11 @@ export const searchList = async () => {
       description: [item.categoryText, item.language],
       content: item.author,
       time: item.publisher,
+      cover: item.cover,
     });
   }
   console.log(data, result);
-  return result;
+  return { data: result, count };
 };
 
 export const actions: any[] = [

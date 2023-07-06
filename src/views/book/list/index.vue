@@ -14,21 +14,22 @@
       <a-list>
         <template v-for="item in list" :key="item.id">
           <a-list-item>
+            <template #extra>
+              <a
+                :href="`https://www.youbaobao.xyz/book/res/img/${item.cover}`"
+                target="_blank"
+              >
+                <img
+                  :class="`${prefixCls}__cover`"
+                  alt="logo"
+                  :src="`https://www.youbaobao.xyz/book/res/img/${item.cover}`"
+                />
+              </a>
+            </template>
             <a-list-item-meta>
               <template #description>
 
                 <div :class="`${prefixCls}__action`">
-                  <template v-for="action in actions" :key="action.icon">
-                    <div :class="`${prefixCls}__action-item`">
-                      <Icon
-                        v-if="action.icon"
-                        :class="`${prefixCls}__action-icon`"
-                        :icon="action.icon"
-                        :color="action.color"
-                      />
-                      {{ action.text }}
-                    </div>
-                  </template>
                   <span :class="`${prefixCls}__time`">{{ item.time }}</span>
                 </div>
               </template>
@@ -52,27 +53,70 @@
         </template>
       </a-list>
       <a-pagination
-        :total="85"
-        :show-total="(total) => `Total ${total} items`"
-        :page-size="20"
-        v-model:current="current1"
+        :total="total"
+        :show-total="() => `共 ${total} 条数据`"
+        :page-size="pageSize"
+        v-model:current="current"
+        @change="onPageChange"
       />
     </div>
   </PageWrapper>
 </template>
 <script lang="ts">
   import { Tag, List, Pagination } from 'ant-design-vue';
-  import { defineComponent, ref } from 'vue';
+  import { defineComponent, ref, unref } from 'vue';
   import Icon from '@/components/Icon/Icon.vue';
   import { BasicForm } from '/@/components/Form/index';
   import { actions, searchList, schemas } from './data';
   import { PageWrapper } from '/@/components/Page';
 
+  const list = ref();
+  const title = ref();
+  const author = ref();
+  const total = ref(80);
+  const current = ref(1);
+  const pageSize = ref(20);
+
   const handleSearch = (e) => {
     console.log(e);
+    if (e.name) {
+      title.value = e.name;
+    } else {
+      title.value = null;
+    }
+    if (e.author) {
+      author.value = e.author;
+    } else {
+      author.value = null;
+    }
+    const params = {
+      title: unref(title),
+      author: unref(author),
+      page: unref(current),
+      pageSize: unref(pageSize),
+    };
+    handleSearchList(params);
   };
 
-  const list = ref();
+  const handleSearchList = (params = {}) => {
+    searchList(params).then(({ data, count }) => {
+      list.value = data;
+      total.value = count;
+    });
+  };
+
+  const onPageChange = (page, pagesize) => {
+    current.value = page;
+    pageSize.value = pagesize;
+    const params = {
+      title: unref(title),
+      author: unref(author),
+      page: unref(current),
+      pageSize: unref(pageSize),
+    };
+    handleSearchList(params);
+  };
+
   export default defineComponent({
     components: {
       Icon,
@@ -85,7 +129,7 @@
       [Pagination.name]: Pagination,
     },
     mounted() {
-      searchList().then((data) => (list.value = data));
+      handleSearchList();
     },
     setup() {
       return {
@@ -94,6 +138,10 @@
         actions,
         schemas,
         handleSearch,
+        total,
+        current,
+        pageSize,
+        onPageChange,
       };
     },
   });
@@ -109,6 +157,11 @@
     &__container {
       padding: 12px;
       background-color: @component-background;
+    }
+
+    &__cover {
+      width: 115px;
+      height: 140px;
     }
 
     &__title {
@@ -145,8 +198,6 @@
     }
 
     &__time {
-      position: absolute;
-      right: 20px;
       color: rgb(0 0 0 / 45%);
     }
   }
