@@ -16,13 +16,13 @@
           <a-list-item>
             <template #extra>
               <a
-                :href="`https://www.youbaobao.xyz/book/res/img/${item.cover}`"
+                :href="wrapperCoverImage(item.cover)"
                 target="_blank"
               >
                 <img
                   :class="`${prefixCls}__cover`"
                   alt="logo"
-                  :src="`https://www.youbaobao.xyz/book/res/img/${item.cover}`"
+                  :src="wrapperCoverImage(item.cover)"
                 />
               </a>
             </template>
@@ -117,6 +117,14 @@
     handleSearchList(params);
   };
 
+  const wrapperCoverImage = (cover) => {
+    if (cover.startsWith('/')) {
+      return `https://www.youbaobao.xyz/book/res/img${cover}`;
+    } else {
+      return `http://localhost:8080/upload/cover/${cover}`;
+    }
+  };
+
   export default defineComponent({
     components: {
       Icon,
@@ -142,6 +150,7 @@
         current,
         pageSize,
         onPageChange,
+        wrapperCoverImage,
       };
     },
   });

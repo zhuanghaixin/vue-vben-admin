@@ -11,7 +11,7 @@
       <BasicForm @register="registerTask" />
     </a-card>
     <a-card title="电子书目录" :bordered="false" class="!mt-5">
-      <PersonTable ref="tableRef" />
+      <PersonTable ref="tableRef" :data="contentData" />
     </a-card>
 
     <template #rightFooter>
@@ -32,8 +32,9 @@
     components: { BasicForm, PersonTable, PageWrapper, [Card.name]: Card },
     setup() {
       const tableRef = ref<{ getDataSource: () => any } | null>(null);
+      const contentData = ref([]);
 
-      const [register, { validate }] = useForm({
+      const [register, { validate, setFieldsValue }] = useForm({
         layout: 'vertical',
         baseColProps: {
           span: 6,
@@ -47,7 +48,7 @@
         baseColProps: {
           span: 6,
         },
-        schemas: taskSchemas,
+        schemas: taskSchemas({ setFieldsValue, contentData }),
         showActionButtonGroup: false,
       });
 
@@ -62,7 +63,7 @@
         } catch (error) {}
       }
 
-      return { register, registerTask, submitAll, tableRef };
+      return { register, registerTask, submitAll, tableRef, contentData };
     },
   });
 </script>

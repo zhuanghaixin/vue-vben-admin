@@ -109,30 +109,57 @@ export const schemas: FormSchema[] = [
     },
   },
 ];
-export const taskSchemas: FormSchema[] = [
-  {
-    field: 'book',
-    component: 'Upload',
-    label: '电子书',
-    required: true,
-    componentProps: {
-      maxSize: 5,
-      maxNumber: 1,
-      accept: ['epub'],
-      api: (data) => {
-        const formData = new FormData();
-        formData.append('file', data.file);
-        const globSetting = useGlobSetting();
-        const { apiUrl } = globSetting;
-        const requestUrl = `${apiUrl}/book/upload`;
-        console.log(data, apiUrl, requestUrl);
-        return axios.post(requestUrl, formData, {
-          headers: {
-            'Content-type': data.file.type,
-            Authorization: `Bearer ${getToken()}`,
-          },
-        });
+export const taskSchemas = ({ setFieldsValue, contentData }): FormSchema[] => {
+  return [
+    {
+      field: 'book',
+      component: 'Upload',
+      label: '电子书',
+      required: true,
+      componentProps: {
+        maxSize: 5,
+        maxNumber: 1,
+        accept: ['epub'],
+        api: (data) => {
+          const formData = new FormData();
+          formData.append('file', data.file);
+          const globSetting = useGlobSetting();
+          const { apiUrl } = globSetting;
+          const requestUrl = `${apiUrl}/book/upload`;
+          console.log(data, apiUrl, requestUrl);
+          return axios.post(requestUrl, formData, {
+            headers: {
+              'Content-type': data.file.type,
+              Authorization: `Bearer ${getToken()}`,
+            },
+          });
+        },
+        onChange(files) {
+          // 获取解析后的电子书数据
+          if (!files || files.length < 1) {
+            return;
+          }
+          const [file] = files;
+          const { originalName } = file;
+          const fileData = file.data;
+          console.log(111, fileData);
+          if (!fileData) {
+            return;
+          }
+          const { title, creator, publisher, language, rootFile, cover, content } = fileData;
+          setFieldsValue({
+            title,
+            author: creator,
+            publisher,
+            language,
+            rootFile,
+            cover,
+            fileName: originalName,
+          });
+          contentData.value = content;
+          console.log(contentData.value);
+        },
       },
     },
-  },
-];
+  ];
+};

@@ -27,12 +27,14 @@
       @delete="handleDelete"
     />
 
+  <!--
     <UploadPreviewModal
       :value="fileList"
       @register="registerPreviewModal"
       @list-change="handlePreviewChange"
       @delete="handlePreviewDelete"
     />
+  -->
   </div>
 </template>
 <script lang="ts">

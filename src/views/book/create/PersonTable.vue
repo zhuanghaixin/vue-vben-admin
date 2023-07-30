@@ -1,21 +1,13 @@
 <template>
   <div>
-    <BasicTable @register="registerTable" @edit-change="handleEditChange">
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'action'">
-          <TableAction :actions="createActions(record, column)" />
-        </template>
-      </template>
-    </BasicTable>
-    <a-button block class="mt-5" type="dashed" @click="handleAdd"> 新增成员 </a-button>
+    <BasicTable @register="registerTable" />
   </div>
 </template>
 <script lang="ts">
-  import { defineComponent } from 'vue';
+import { defineComponent, toRefs, h } from 'vue';
   import {
     BasicTable,
     useTable,
-    TableAction,
     BasicColumn,
     ActionItem,
     EditRecordRow,
@@ -23,52 +15,48 @@
 
   const columns: BasicColumn[] = [
     {
-      title: '成员姓名',
-      dataIndex: 'name',
-      editRow: true,
+      title: '序号',
+      dataIndex: 'playOrder',
     },
     {
-      title: '工号',
-      dataIndex: 'no',
-      editRow: true,
+      title: '目录ID',
+      dataIndex: 'id',
     },
     {
-      title: '所属部门',
-      dataIndex: 'dept',
-      editRow: true,
+      title: '名称',
+      dataIndex: 'text',
+    },
+
+    {
+      title: '链接',
+      dataIndex: 'href',
+      customRender: (data) => {
+        const text = data.text;
+        return {
+          children: h(
+            'a',
+            {
+              href: `http://localhost:8080/upload/book/${text}`,
+              target: '_blank',
+            },
+            'Read',
+          ),
+        };
+      },
     },
   ];
 
-  const data: any[] = [
-    {
-      name: 'John Brown',
-      no: '00001',
-      dept: 'New York No. 1 Lake Park',
-    },
-    {
-      name: 'John Brown2',
-      no: '00002',
-      dept: 'New York No. 2 Lake Park',
-    },
-    {
-      name: 'John Brown3',
-      no: '00003',
-      dept: 'New York No. 3Lake Park',
-    },
-  ];
   export default defineComponent({
-    components: { BasicTable, TableAction },
-    setup() {
+    components: { BasicTable },
+    props: {
+      data: Array,
+    },
+    setup(props) {
+      const { data } = toRefs(props);
       const [registerTable, { getDataSource }] = useTable({
         columns: columns,
         showIndexColumn: false,
         dataSource: data,
-        actionColumn: {
-          width: 160,
-          title: '操作',
-          dataIndex: 'action',
-          // slots: { customRender: 'action' },
-        },
         scroll: { y: '100%' },
         pagination: false,
       });
@@ -88,23 +76,6 @@
 
       function handleSave(record: EditRecordRow) {
         record.onEdit?.(false, true);
-      }
-
-      function handleEditChange(data: Recordable) {
-        console.log(data);
-      }
-
-      function handleAdd() {
-        const data = getDataSource();
-        const addRow: EditRecordRow = {
-          name: '',
-          no: '',
-          dept: '',
-          editable: true,
-          isNew: true,
-          key: `${Date.now()}`,
-        };
-        data.push(addRow);
       }
 
       function createActions(record: EditRecordRow, column: BasicColumn): ActionItem[] {
@@ -138,9 +109,7 @@
         registerTable,
         handleEdit,
         createActions,
-        handleAdd,
         getDataSource,
-        handleEditChange,
       };
     },
   });
