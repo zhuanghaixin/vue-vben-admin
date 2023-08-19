@@ -14,7 +14,7 @@ const basicOptions: LabelValueOptions = [
   },
 ];
 
-const categoryOptions: LabelValueOptions = [
+export const categoryOptions: LabelValueOptions = [
   {
     label: 'Biomedicine',
     value: '12',

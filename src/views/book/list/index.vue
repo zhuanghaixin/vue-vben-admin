@@ -32,10 +32,14 @@
                 <div :class="`${prefixCls}__action`">
                   <span :class="`${prefixCls}__time`">{{ item.time }}</span>
                 </div>
+                <div :class="`${prefixCls}__action`">
+                  <a-button type="primary" @click="editBook(item)" style="margin-right: 20px">编辑</a-button>
+                  <a-button type="primary" danger @click="confirmDeleteBook(item)">删除</a-button>
+                </div>
               </template>
               <template #title>
                 <p :class="`${prefixCls}__title`">
-                  {{ item.title }}
+                  {{ item.title }}({{ item.id }})
                 </p>
                 <div :class="`${prefixCls}__content`">
                   {{ item.content }}
@@ -63,11 +67,12 @@
   </PageWrapper>
 </template>
 <script lang="ts">
-  import { Tag, List, Pagination } from 'ant-design-vue';
+  import { Tag, List, Pagination, Modal, message } from 'ant-design-vue';
   import { defineComponent, ref, unref } from 'vue';
+  import { useRouter } from 'vue-router';
   import Icon from '@/components/Icon/Icon.vue';
   import { BasicForm } from '/@/components/Form/index';
-  import { actions, searchList, schemas } from './data';
+  import { actions, searchList, schemas, doDeleteBook } from './data';
   import { PageWrapper } from '/@/components/Page';
 
   const list = ref();
@@ -125,6 +130,22 @@
     }
   };
 
+  const confirmDeleteBook = (item) => {
+    Modal.confirm({
+      title: '确认删除吗？',
+      content: '确认删除 id 为 ' + item.id + ' 的电子书吗？',
+      onOk() {
+        doDeleteBook(item.id, item.fileName).then((res) => {
+          if (res.affectedRows === 1) {
+            message.success('删除成功');
+            onPageChange(current.value, pageSize.value);
+          }
+        });
+      },
+      onCancel() {},
+    });
+  };
+
   export default defineComponent({
     components: {
       Icon,
@@ -140,6 +161,13 @@
       handleSearchList();
     },
     setup() {
+      const { push } = useRouter();
+
+      const editBook = (item) => {
+        const { id } = item;
+        push('/book/create?id=' + id);
+      };
+
       return {
         prefixCls: 'list-search',
         list,
@@ -151,6 +179,8 @@
         pageSize,
         onPageChange,
         wrapperCoverImage,
+        confirmDeleteBook,
+        editBook,
       };
     },
   });

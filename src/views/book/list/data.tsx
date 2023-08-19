@@ -1,5 +1,10 @@
 import { FormSchema } from '/@/components/Form/index';
-import { getBookList } from '@/api/book/menu';
+import { getBookList, deleteBook, deleteContents } from '@/api/book/menu';
+
+export const doDeleteBook = async (id, fileName) => {
+  await deleteContents(fileName);
+  return deleteBook(id);
+};
 
 export const searchList = async (params = {}) => {
   const result: any[] = [];
@@ -25,6 +30,7 @@ export const searchList = async (params = {}) => {
       content: item.author,
       time: item.publisher,
       cover: item.cover,
+      fileName: item.fileName,
     });
   }
   console.log(data, result);
