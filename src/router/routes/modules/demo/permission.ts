@@ -25,6 +25,30 @@ const permission: AppRouteModule = {
       component: () => import('/@/views/permission/menu/index.vue'),
     },
     {
+      path: 'user',
+      name: 'PermissionUser',
+      meta: {
+        title: t('routes.demo.permission.user'),
+      },
+      component: () => import('/@/views/permission/user/index.vue'),
+    },
+    {
+      path: 'role',
+      name: 'PermissionRole',
+      meta: {
+        title: t('routes.demo.permission.role'),
+      },
+      component: () => import('/@/views/permission/role/index.vue'),
+    },
+    {
+      path: 'permission',
+      name: 'PermissionManagement',
+      meta: {
+        title: t('routes.demo.permission.permission'),
+      },
+      component: () => import('/@/views/permission/permission/index.vue'),
+    },
+    {
       path: 'front',
       name: 'PermissionFrontDemo',
       component: getParentLayout('PermissionFrontDemo'),

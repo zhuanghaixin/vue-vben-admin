@@ -9,6 +9,32 @@ enum Api {
   GetUserInfo = '/user/info',
   GetPermCode = '/getPermCode',
   TestRetry = '/testRetry',
+  User = '/user',
+  Role = '/role',
+}
+
+export function getRoleList(params = {}): Promise<any> {
+  return defHttp.get({ url: Api.Role, params });
+}
+
+export function addRole(data): Promise<any> {
+  return defHttp.post<GetUserInfoModel>({ url: Api.Role, data });
+}
+
+export function editRole(data): Promise<any> {
+  return defHttp.put<GetUserInfoModel>({ url: Api.Role, data });
+}
+
+export function getUserList(params): Promise<any> {
+  return defHttp.get<GetUserInfoModel>({ url: Api.User, params });
+}
+
+export function addUser(data): Promise<any> {
+  return defHttp.post<GetUserInfoModel>({ url: Api.User, data });
+}
+
+export function editUser(data): Promise<any> {
+  return defHttp.put<GetUserInfoModel>({ url: Api.User, data });
 }
 
 /**
