@@ -1,5 +1,4 @@
 import { BasicColumn, FormSchema } from '/@/components/Table';
-import { unref } from 'vue';
 
 export const columns: BasicColumn[] = [
   {
@@ -44,9 +43,9 @@ export const formSchema = (isUpdate): FormSchema[] => {
       label: '角色名称',
       required: true,
       component: 'Input',
-      componentProps: {
-        disabled: unref(isUpdate),
-      },
+      // componentProps: {
+      //   disabled: isUpdate,
+      // },
     },
     {
       label: '备注',

@@ -101,7 +101,7 @@ export const formSchema = (isUpdate): FormSchema[] => {
       required: true,
       component: 'Input',
       componentProps: {
-        disabled: unref(isUpdate),
+        disabled: isUpdate,
       },
     },
     {

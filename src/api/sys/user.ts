@@ -11,6 +11,19 @@ enum Api {
   TestRetry = '/testRetry',
   User = '/user',
   Role = '/role',
+  RoleMenu = '/role/role_menu',
+}
+
+export function getRoleMenu(params): Promise<any> {
+  return defHttp.get({ url: Api.RoleMenu, params });
+}
+
+export function addRoleMenu(data): Promise<any> {
+  return defHttp.post({ url: Api.RoleMenu, data });
+}
+
+export function deleteRoleMenuByRoleId(data): Promise<any> {
+  return defHttp.delete({ url: Api.RoleMenu, data });
 }
 
 export function getRoleList(params = {}): Promise<any> {
