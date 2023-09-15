@@ -18,6 +18,16 @@
           title="菜单分配"
         />
       </template>
+      <template #auth="{ model, field }">
+        <BasicTree
+          v-model:value="model[field]"
+          :treeData="authData"
+          :fieldNames="{ title: 'name', key: 'id' }"
+          checkable
+          toolbar
+          title="权限分配"
+        />
+      </template>
     </BasicForm>
   </BasicDrawer>
 </template>
@@ -30,13 +40,14 @@
 
   import { getActiveMenu } from '/@/api/sys/menu';
   import {
-    addRole,
-    addRoleMenu,
+    addRole, addRoleAuth,
+    addRoleMenu, deleteRoleAuthByRoleId,
     deleteRoleMenuByRoleId,
-    editRole,
+    editRole, getAuthList, getRoleAuth,
     getRoleMenu,
   } from '@/api/sys/user';
   import { message } from 'ant-design-vue';
+  import { treeData } from '@/views/demo/tree/data';
 
   export default defineComponent({
     name: 'RoleDrawer',
@@ -45,6 +56,7 @@
     setup(_, { emit }) {
       const isUpdate = ref(true);
       const treeData = ref<TreeItem[]>([]);
+      const authData = ref<TreeItem[]>([]);
       const roleIdData = ref();
 
       const [registerForm, { resetFields, setFieldsValue, validate }] = useForm({
@@ -63,13 +75,20 @@
           console.log(menuList);
           treeData.value = menuList;
         }
+        if (unref(authData).length === 0) {
+          const authList = await getAuthList({});
+          console.log(authList);
+          authData.value = authList;
+        }
         isUpdate.value = !!data?.isUpdate;
 
         if (unref(isUpdate)) {
           const roleId = data.record.id;
           const roleMenuList = (await getRoleMenu({ roleId })) || [];
-          console.log(roleMenuList);
+          const roleAuthList = (await getRoleAuth({ roleId })) || [];
+          console.log(roleMenuList, roleAuthList);
           data.record.menu = roleMenuList.map((item) => item.menuId);
+          data.record.auth = roleAuthList.map((item) => item.authId);
           setFieldsValue({
             ...data.record,
           });
@@ -90,9 +109,13 @@
             if (res) {
               message.success('编辑角色成功');
               await deleteRoleMenuByRoleId({ roleId });
-              const { menu = [] } = values;
+              await deleteRoleAuthByRoleId({ roleId });
+              const { menu = [], auth = [] } = values;
               for (let menuId of menu) {
                 await addRoleMenu({ roleId, menuId });
+              }
+              for (let authId of auth) {
+                await addRoleAuth({ roleId, authId });
               }
               closeDrawer();
               emit('success');
@@ -105,9 +128,12 @@
               message.success('新增角色成功');
               // 提交角色和菜单的绑定关系
               const { id: roleId } = res;
-              const { menu = [] } = values;
+              const { menu = [], auth = [] } = values;
               for (let menuId of menu) {
                 await addRoleMenu({ roleId, menuId });
+              }
+              for (let authId of auth) {
+                await addRoleAuth({ roleId, authId });
               }
               closeDrawer();
               emit('success');
@@ -126,6 +152,7 @@
         getTitle,
         handleSubmit,
         treeData,
+        authData,
       };
     },
   }) as any;

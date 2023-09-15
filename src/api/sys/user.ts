@@ -12,6 +12,41 @@ enum Api {
   User = '/user',
   Role = '/role',
   RoleMenu = '/role/role_menu',
+  AUTH = '/role/auth',
+  RoleAuth = '/role/role_auth',
+  RoleAuthByRole = '/role/role_auth/get_auth_by_role',
+}
+
+export function getRoleAuthByRole(params): Promise<any> {
+  return defHttp.get({ url: Api.RoleAuthByRole, params });
+}
+
+export function deleteAuth(data): Promise<any> {
+  return defHttp.delete({ url: Api.AUTH, data });
+}
+
+export function getRoleAuth(params): Promise<any> {
+  return defHttp.get({ url: Api.RoleAuth, params });
+}
+
+export function deleteRoleAuthByRoleId(data): Promise<any> {
+  return defHttp.delete({ url: Api.RoleAuth, data });
+}
+
+export function addRoleAuth(data): Promise<any> {
+  return defHttp.post({ url: Api.RoleAuth, data });
+}
+
+export function editAuth(data): Promise<any> {
+  return defHttp.put({ url: Api.AUTH, data });
+}
+
+export function addAuth(data): Promise<any> {
+  return defHttp.post({ url: Api.AUTH, data });
+}
+
+export function getAuthList(params): Promise<any> {
+  return defHttp.get({ url: Api.AUTH, params });
 }
 
 export function getRoleMenu(params): Promise<any> {

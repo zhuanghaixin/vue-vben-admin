@@ -74,6 +74,7 @@
   import { BasicForm } from '/@/components/Form/index';
   import { actions, searchList, schemas, doDeleteBook } from './data';
   import { PageWrapper } from '/@/components/Page';
+  import { useUserStore } from '@/store/modules/user';
 
   const list = ref();
   const title = ref();
@@ -83,7 +84,15 @@
   const pageSize = ref(20);
 
   const handleSearch = (e) => {
-    console.log(e);
+    const userStore = useUserStore();
+    const { userInfo } = userStore;
+    const { auth = [] } = userInfo;
+    const hasAuth = auth.find((a) => a.key === 'BOOK_SEARCH');
+    console.log(e, userInfo, hasAuth);
+    if (!hasAuth) {
+      message.error('缺少BOOK_SEARCH权限，无法进行查询');
+      return;
+    }
     if (e.name) {
       title.value = e.name;
     } else {

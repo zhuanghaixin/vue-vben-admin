@@ -2,7 +2,7 @@
   <div>
     <BasicTable @register="registerTable">
       <template #toolbar>
-        <a-button type="primary" @click="handleCreate"> 新增角色 </a-button>
+        <a-button type="primary" @click="handleCreate"> 新增权限 </a-button>
       </template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'action'">
@@ -31,14 +31,12 @@
 </template>
 <script lang="ts">
   import { defineComponent } from 'vue';
-
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
-  import { getRoleListByPage } from '/@/api/demo/system';
-
   import { useDrawer } from '/@/components/Drawer';
   import RoleDrawer from './RoleDrawer.vue';
-
   import { columns, searchFormSchema } from './role.data';
+  import { deleteAuth, deleteRoleAuthByRoleId, getAuthList } from '@/api/sys/user';
+  import { message } from 'ant-design-vue';
 
   export default defineComponent({
     name: 'RoleManagement',
@@ -46,8 +44,8 @@
     setup() {
       const [registerDrawer, { openDrawer }] = useDrawer();
       const [registerTable, { reload }] = useTable({
-        title: '角色列表',
-        api: getRoleListByPage,
+        title: '权限列表',
+        api: getAuthList,
         columns,
         formConfig: {
           labelWidth: 120,
@@ -79,8 +77,16 @@
         });
       }
 
-      function handleDelete(record: Recordable) {
+      async function handleDelete(record) {
         console.log(record);
+        try {
+          await deleteAuth({ id: record.id });
+          await deleteRoleAuthByRoleId({ authId: record.id });
+          message.success('删除权限成功');
+          await reload();
+        } catch (e) {
+          message.error(e.message);
+        }
       }
 
       function handleSuccess() {

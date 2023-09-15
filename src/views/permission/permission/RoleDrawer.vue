@@ -29,6 +29,8 @@
   import { BasicTree, TreeItem } from '/@/components/Tree';
 
   import { getMenuList } from '/@/api/demo/system';
+  import { addAuth, editAuth } from '@/api/sys/user';
+  import { message } from 'ant-design-vue';
 
   export default defineComponent({
     name: 'RoleDrawer',
@@ -37,11 +39,12 @@
     setup(_, { emit }) {
       const isUpdate = ref(true);
       const treeData = ref<TreeItem[]>([]);
+      const authId = ref();
 
       const [registerForm, { resetFields, setFieldsValue, validate }] = useForm({
         labelWidth: 90,
         baseColProps: { span: 24 },
-        schemas: formSchema,
+        schemas: formSchema(isUpdate),
         showActionButtonGroup: false,
       });
 
@@ -55,6 +58,7 @@
         isUpdate.value = !!data?.isUpdate;
 
         if (unref(isUpdate)) {
+          authId.value = data.record.id;
           setFieldsValue({
             ...data.record,
           });
@@ -67,10 +71,29 @@
         try {
           const values = await validate();
           setDrawerProps({ confirmLoading: true });
-          // TODO custom api
+          if (unref(isUpdate)) {
+            // edit
+            const id = authId.value;
+            const ret = await editAuth({ id, ...values});
+            if (ret.affectedRows === 1) {
+              message.success('编辑权限成功');
+              closeDrawer();
+              emit('success');
+            } else {
+              message.error('编辑权限失败');
+            }
+          } else {
+            // create
+            const ret = await addAuth(values);
+            if (ret.affectedRows === 1) {
+              message.success('新增权限成功');
+              closeDrawer();
+              emit('success');
+            } else {
+              message.error('新增权限失败');
+            }
+          }
           console.log(values);
-          closeDrawer();
-          emit('success');
         } finally {
           setDrawerProps({ confirmLoading: false });
         }
@@ -84,5 +107,5 @@
         treeData,
       };
     },
-  });
+  }) as any;
 </script>

@@ -7,7 +7,7 @@ import { PageEnum } from '/@/enums/pageEnum';
 import { ROLES_KEY, TOKEN_KEY, USER_INFO_KEY } from '/@/enums/cacheEnum';
 import { getAuthCache, setAuthCache } from '/@/utils/auth';
 import { GetUserInfoModel, LoginParams } from '/@/api/sys/model/userModel';
-import { doLogout, getUserInfo, loginApi } from '/@/api/sys/user';
+import { doLogout, getRoleAuthByRole, getUserInfo, loginApi } from '/@/api/sys/user';
 import { useI18n } from '/@/hooks/web/useI18n';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { router } from '/@/router';
@@ -125,7 +125,15 @@ export const useUserStore = defineStore({
     async getUserInfoAction(): Promise<UserInfo | null> {
       if (!this.getToken) return null;
       const userInfo = await getUserInfo();
+      console.log('userInfo', userInfo);
       const { role = [] } = userInfo;
+      try {
+        const authInfo = await getRoleAuthByRole({ roleName: role });
+        console.log(authInfo);
+        userInfo.auth = authInfo;
+      } catch (e) {
+        console.log(e);
+      }
       const roles = JSON.parse(role);
       if (isArray(roles)) {
         const roleList = roles.map((item) => item) as RoleEnum[];
