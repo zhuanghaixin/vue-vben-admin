@@ -74,7 +74,8 @@
   import { BasicForm } from '/@/components/Form/index';
   import { actions, searchList, schemas, doDeleteBook } from './data';
   import { PageWrapper } from '/@/components/Page';
-  import { useUserStore } from '@/store/modules/user';
+  import { hasAuth } from '@/utils/auth';
+  import { BOOK_SEARCH, BOOK_EDIT, BOOK_DELETE } from '@/utils/auth/permission-key';
 
   const list = ref();
   const title = ref();
@@ -84,13 +85,7 @@
   const pageSize = ref(20);
 
   const handleSearch = (e) => {
-    const userStore = useUserStore();
-    const { userInfo } = userStore;
-    const { auth = [] } = userInfo;
-    const hasAuth = auth.find((a) => a.key === 'BOOK_SEARCH');
-    console.log(e, userInfo, hasAuth);
-    if (!hasAuth) {
-      message.error('缺少BOOK_SEARCH权限，无法进行查询');
+    if (!hasAuth(BOOK_SEARCH)) {
       return;
     }
     if (e.name) {
@@ -140,6 +135,9 @@
   };
 
   const confirmDeleteBook = (item) => {
+    if (!hasAuth(BOOK_DELETE)) {
+      return;
+    }
     Modal.confirm({
       title: '确认删除吗？',
       content: '确认删除 id 为 ' + item.id + ' 的电子书吗？',
@@ -173,6 +171,9 @@
       const { push } = useRouter();
 
       const editBook = (item) => {
+        if (!hasAuth(BOOK_EDIT)) {
+          return;
+        }
         const { id } = item;
         push('/book/create?id=' + id);
       };

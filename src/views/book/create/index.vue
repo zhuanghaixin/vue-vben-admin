@@ -28,6 +28,8 @@
   import { schemas, taskSchemas, categoryOptions } from './data';
   import { Card, message } from 'ant-design-vue';
   import { addBook, addContents, getBook, updateBook } from '@/api/book/menu';
+  import { hasAuth } from '@/utils/auth';
+  import { BOOK_SUBMIT } from '@/utils/auth/permission-key';
 
   const DIR = '/opt/homebrew/var/www/upload';
 
@@ -58,6 +60,9 @@
       });
 
       async function submitAll() {
+        if (!hasAuth(BOOK_SUBMIT)) {
+          return;
+        }
         try {
           if (tableRef.value) {
             console.log('table data:', tableRef.value.getDataSource());
