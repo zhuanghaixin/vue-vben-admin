@@ -92,7 +92,7 @@ export function loginApi(params: LoginParams, mode: ErrorMessageMode = 'modal') 
   return defHttp.post<LoginResultModel>(
     {
       url: Api.Login,
-      params,
+      data: params,
     },
     {
       errorMessageMode: mode,

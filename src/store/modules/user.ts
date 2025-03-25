@@ -129,12 +129,18 @@ export const useUserStore = defineStore({
       const { role = [] } = userInfo;
       try {
         const authInfo = await getRoleAuthByRole({ roleName: role });
+        console.log('authInfo', authInfo);
         console.log(authInfo);
         userInfo.auth = authInfo;
       } catch (e) {
         console.log(e);
       }
-      const roles = JSON.parse(role);
+      console.log('userInfo', userInfo);
+      console.log('role', role);
+      // const roles = JSON.parse(role);
+      const roles = role.split(',');
+
+      console.log('roles', roles);
       if (isArray(roles)) {
         const roleList = roles.map((item) => item) as RoleEnum[];
         this.setRoleList(roleList);
